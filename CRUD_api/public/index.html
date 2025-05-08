@@ -1,0 +1,64 @@
+<!-- // npm install express mongoose cors body-parser -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>College Admission</title>
+</head>
+<body>
+    <h1 style="text-align: center;">College Admission</h1>
+  <h2 style="text-align: center;">Admission Form</h2>
+  <form id="admissionForm" style="text-align: center;">
+    <input type="text" id="name" placeholder="Name" required><br><br>
+    <input type="text" id="course" placeholder="Course" required><br><br>
+    <input type="email" id="email" placeholder="Email" required><br><br>
+    <input type="text" id="phone" placeholder="Phone" required><br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2 style="text-align: center;">Admissions List</h2>
+  <ul id="admissionList" style="text-align: center; list-style-type: none; padding: 0;"></ul>
+
+  <script>
+    const form = document.getElementById('admissionForm');
+    const list = document.getElementById('admissionList');
+
+    async function loadAdmissions() {
+      const res = await fetch('/api/admissions');
+      const data = await res.json();
+      list.innerHTML = '';
+      data.forEach(ad => {
+        const li = document.createElement('li');
+        li.innerHTML = `${ad.name} - ${ad.course} 
+          <button onclick="deleteAdmission('${ad._id}')">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const newAdmission = {
+        name: document.getElementById('name').value,
+        course: document.getElementById('course').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+      };
+      await fetch('/api/admissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newAdmission)
+      });
+      form.reset();
+      loadAdmissions();
+    });
+
+    async function deleteAdmission(id) {
+      await fetch(`/api/admissions/${id}`, {
+        method: 'DELETE',
+      });
+      loadAdmissions();
+    }
+
+    loadAdmissions();
+  </script>
+</body>
+</html>
